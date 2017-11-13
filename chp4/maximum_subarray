@@ -1,0 +1,67 @@
+#include <vector>
+#include <iostream>
+
+using namespace std;
+
+struct result
+{
+	int l;
+	int r;
+	int s;
+};
+
+result find_max_crossing_subarray(vector<int>&, int, int, int);
+result find_maximum_subarray(vector<int>&, int, int);
+
+int main()
+{
+	vector<int> vec = { 13, -3, -25, 20, -3, -16, -23, 18, 20, -7, 12, -5, -22, 15, -4, 7 };
+	auto r = find_maximum_subarray(vec, 0, vec.size());
+	cout << r.s << endl;
+	getchar();
+	return 0;
+}
+
+
+result find_max_crossing_subarray(vector<int> &v, int low, int mid, int high)
+{
+	int left_sum = INT_MIN;
+	int right_sum = INT_MIN;
+	int sum = 0;
+	int max_left;
+	int max_right;
+	for (int i = mid - 1; i >= 0; --i) {
+		sum = sum + v[i];
+		if (sum > left_sum) {
+			left_sum = sum;
+			max_left = i;
+		}
+	}
+	sum = 0;
+	for (int i = mid; i != high; i++) {
+		sum = sum + v[i];
+		if (sum > right_sum) {
+			right_sum = sum;
+			max_right = i;
+		}
+	}
+	return { max_left, max_right, left_sum + right_sum };		
+}
+
+result find_maximum_subarray(vector<int> &v, int low, int high)
+{
+	if (high - low == 1)
+		return { low, high, v[low] };
+	else {
+		int mid = (low + high) / 2;
+		result left = find_maximum_subarray(v, low, mid);
+		result right = find_maximum_subarray(v, mid, high);
+		result middle= find_max_crossing_subarray(v, low, mid, high);
+		if (left.s >= right.s && left.s >= middle.s)
+			return left;
+		else if (right.s >= left.s && right.s >= middle.s)
+			return right;
+		else
+			return middle;
+	}
+}
